@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+.eggs/
+
+# Build & distribution
+build/
+dist/
+*.whl
+*.tar.gz
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env/
+
+# Test & coverage
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Project-specific
+results/
+plans/
+
+# Secrets
+.env
+*.env

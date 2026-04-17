@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "pcb": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-m", "pcb.mcp_server"],
+      "env": {}
+    }
+  }
+}

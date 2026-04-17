@@ -1,0 +1,91 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "prompt-compression-benchmarker"
+version = "0.1.0"
+description = "A CLI tool for benchmarking prompt compression techniques across multiple tasks"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.9"
+authors = [
+    {name = "Prompt Compression Benchmarker"}
+]
+keywords = ["prompt-compression", "llm", "benchmarking", "nlp"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "typer>=0.9.0",
+    "rich>=13.0.0",
+    "tiktoken>=0.5.0",
+    "numpy>=1.24.0",
+    "scikit-learn>=1.3.0",
+    "rouge-score>=0.1.2",
+    "rank-bm25>=0.2.2",
+    "pydantic>=2.0.0",
+]
+
+[project.optional-dependencies]
+llmlingua = ["llmlingua>=0.2.0", "transformers>=4.30.0", "torch>=2.0.0"]
+selective  = ["selective-context>=0.1.0", "transformers>=4.30.0", "torch>=2.0.0"]
+mcp        = ["mcp>=1.0.0"]
+anthropic  = ["anthropic>=0.30.0"]
+openai     = ["openai>=1.30.0"]
+all = [
+    "llmlingua>=0.2.0", "selective-context>=0.1.0",
+    "transformers>=4.30.0", "torch>=2.0.0",
+    "mcp>=1.0.0", "anthropic>=0.30.0", "openai>=1.30.0",
+]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+]
+
+[project.scripts]
+pcb     = "pcb.cli:app"
+pcb-mcp = "pcb.mcp_server:main"
+
+[project.urls]
+Homepage = "https://github.com/prompt-compression-benchmarker/prompt-compression-benchmarker"
+Repository = "https://github.com/prompt-compression-benchmarker/prompt-compression-benchmarker"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+[tool.setuptools.package-data]
+"pcb" = ["data/*.jsonl"]
+
+[tool.black]
+line-length = 100
+target-version = ['py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --cov=pcb --cov-report=term-missing"

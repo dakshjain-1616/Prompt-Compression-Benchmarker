@@ -1,0 +1,247 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 520" width="960" height="520" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0d1117"/>
+      <stop offset="100%" style="stop-color:#161b22"/>
+    </linearGradient>
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1f6feb"/>
+      <stop offset="100%" style="stop-color:#388bfd"/>
+    </linearGradient>
+    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#238636"/>
+      <stop offset="100%" style="stop-color:#3fb950"/>
+    </linearGradient>
+    <linearGradient id="barSmart" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#1f6feb"/>
+      <stop offset="100%" style="stop-color:#58a6ff"/>
+    </linearGradient>
+    <linearGradient id="barQuery" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#8957e5"/>
+      <stop offset="100%" style="stop-color:#bc8cff"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="960" height="520" fill="url(#bgGrad)" rx="12"/>
+  <rect width="960" height="520" fill="none" stroke="#30363d" stroke-width="1" rx="12"/>
+
+  <!-- Header bar -->
+  <rect x="0" y="0" width="960" height="60" fill="#161b22" rx="12"/>
+  <rect x="0" y="48" width="960" height="12" fill="#161b22"/>
+  <rect x="0" y="56" width="960" height="4" fill="#21262d"/>
+
+  <!-- Dot decorations in header -->
+  <circle cx="28" cy="30" r="7" fill="#ff5f57"/>
+  <circle cx="52" cy="30" r="7" fill="#febc2e"/>
+  <circle cx="76" cy="30" r="7" fill="#28c840"/>
+
+  <!-- Title -->
+  <text x="480" y="23" text-anchor="middle" font-size="13" fill="#8b949e" font-weight="500" letter-spacing="2">PROMPT COMPRESSION BENCHMARKER</text>
+  <text x="480" y="44" text-anchor="middle" font-size="12" fill="#484f58">Benchmark · Deploy · Save — works as MCP tool inside Claude Code</text>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- SECTION 1: HOW IT WORKS (left, x=20-310) -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+
+  <text x="165" y="90" text-anchor="middle" font-size="11" fill="#58a6ff" font-weight="600" letter-spacing="1.5">HOW IT WORKS</text>
+
+  <!-- Card background -->
+  <rect x="20" y="98" width="290" height="330" fill="#161b22" rx="8" stroke="#30363d" stroke-width="1"/>
+
+  <!-- Step 1: Long context -->
+  <rect x="40" y="115" width="250" height="52" fill="#0d1117" rx="6" stroke="#30363d" stroke-width="1"/>
+  <text x="55" y="133" font-size="9.5" fill="#8b949e">LONG CONTEXT  (1 000 tokens)</text>
+  <text x="55" y="148" font-size="8.5" fill="#484f58">RAG passage · codebase · chat history · doc</text>
+  <rect x="238" y="120" width="40" height="16" rx="3" fill="#1c2128"/>
+  <text x="258" y="131" text-anchor="middle" font-size="8" fill="#e3b341">1 000 t</text>
+
+  <!-- Arrow 1 -->
+  <line x1="165" y1="167" x2="165" y2="183" stroke="#30363d" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <polygon points="160,181 165,189 170,181" fill="#30363d"/>
+
+  <!-- Step 2: Compressor box -->
+  <rect x="50" y="189" width="230" height="56" fill="#1c2128" rx="6" stroke="#388bfd" stroke-width="1.5"/>
+  <text x="165" y="209" text-anchor="middle" font-size="11" fill="#58a6ff" font-weight="700">⚡  smart compressor</text>
+  <text x="165" y="225" text-anchor="middle" font-size="8.5" fill="#8b949e">filler removal · dedup · sentence rank · word prune</text>
+  <text x="165" y="238" text-anchor="middle" font-size="8" fill="#484f58">+ query-aware scoring when query provided</text>
+
+  <!-- Arrow 2 -->
+  <line x1="165" y1="245" x2="165" y2="261" stroke="#30363d" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <polygon points="160,259 165,267 170,259" fill="#30363d"/>
+
+  <!-- Step 3: Compressed output -->
+  <rect x="40" y="267" width="250" height="52" fill="#0d1117" rx="6" stroke="#238636" stroke-width="1"/>
+  <text x="55" y="285" font-size="9.5" fill="#8b949e">COMPRESSED CONTEXT</text>
+  <text x="55" y="300" font-size="8.5" fill="#484f58">Key facts preserved · filler removed</text>
+  <rect x="222" y="272" width="56" height="16" rx="3" fill="#1c2128"/>
+  <text x="250" y="283" text-anchor="middle" font-size="8" fill="#3fb950">~470 t  ▼53%</text>
+
+  <!-- Arrow 3 -->
+  <line x1="165" y1="319" x2="165" y2="335" stroke="#30363d" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <polygon points="160,333 165,341 170,333" fill="#30363d"/>
+
+  <!-- Step 4: API call -->
+  <rect x="50" y="341" width="230" height="42" fill="#1c2128" rx="6" stroke="#f0883e" stroke-width="1"/>
+  <text x="165" y="358" text-anchor="middle" font-size="10" fill="#f0883e" font-weight="600">LLM API call</text>
+  <text x="165" y="372" text-anchor="middle" font-size="8.5" fill="#8b949e">Same quality answer · 53% fewer input tokens</text>
+
+  <!-- Savings badge -->
+  <rect x="50" y="398" width="230" height="22" fill="#0d1117" rx="4" stroke="#238636" stroke-width="1"/>
+  <text x="165" y="413" text-anchor="middle" font-size="9" fill="#3fb950" font-weight="600">💰  Up to 63% token reduction · same answer quality</text>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- SECTION 2: COMPRESSOR COMPARISON (middle, x=330-630) -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+
+  <text x="480" y="90" text-anchor="middle" font-size="11" fill="#58a6ff" font-weight="600" letter-spacing="1.5">COMPRESSOR COMPARISON  (rate 0.50)</text>
+
+  <rect x="330" y="98" width="300" height="330" fill="#161b22" rx="8" stroke="#30363d" stroke-width="1"/>
+
+  <!-- Bar chart labels and bars -->
+  <!-- Max bar width = 180px = 65% reduction -->
+
+  <!-- tfidf -->
+  <text x="345" y="133" font-size="9.5" fill="#8b949e">tfidf</text>
+  <rect x="345" y="138" width="120" height="14" rx="3" fill="#21262d"/>
+  <rect x="345" y="138" width="120" height="14" rx="3" fill="#264f78"/>
+  <text x="471" y="149" font-size="8.5" fill="#58a6ff" font-weight="600">  44%</text>
+
+  <!-- llmlingua2 -->
+  <text x="345" y="172" font-size="9.5" fill="#8b949e">llmlingua2</text>
+  <rect x="345" y="177" width="130" height="14" rx="3" fill="#21262d"/>
+  <rect x="345" y="177" width="130" height="14" rx="3" fill="#264f78"/>
+  <text x="481" y="188" font-size="8.5" fill="#58a6ff" font-weight="600">  47%</text>
+
+  <!-- selective_context -->
+  <text x="345" y="211" font-size="9.5" fill="#8b949e">selective_context</text>
+  <rect x="345" y="216" width="138" height="14" rx="3" fill="#21262d"/>
+  <rect x="345" y="216" width="138" height="14" rx="3" fill="#264f78"/>
+  <text x="489" y="227" font-size="8.5" fill="#58a6ff" font-weight="600">  50%</text>
+
+  <!-- llmlingua -->
+  <text x="345" y="250" font-size="9.5" fill="#8b949e">llmlingua</text>
+  <rect x="345" y="255" width="134" height="14" rx="3" fill="#21262d"/>
+  <rect x="345" y="255" width="134" height="14" rx="3" fill="#264f78"/>
+  <text x="485" y="266" font-size="8.5" fill="#58a6ff" font-weight="600">  49%</text>
+
+  <!-- smart -->
+  <text x="345" y="289" font-size="9.5" fill="#c9d1d9" font-weight="600">smart  ★</text>
+  <rect x="345" y="294" width="141" height="14" rx="3" fill="#21262d"/>
+  <rect x="345" y="294" width="141" height="14" rx="3" fill="url(#barSmart)" filter="url(#glow)"/>
+  <text x="492" y="305" font-size="8.5" fill="#58a6ff" font-weight="700">  51%</text>
+
+  <!-- smart + query -->
+  <text x="345" y="328" font-size="9.5" fill="#c9d1d9" font-weight="600">smart + query  ★★</text>
+  <rect x="345" y="333" width="170" height="14" rx="3" fill="#21262d"/>
+  <rect x="345" y="333" width="170" height="14" rx="3" fill="url(#barQuery)" filter="url(#glow)"/>
+  <text x="521" y="344" font-size="8.5" fill="#bc8cff" font-weight="700">  63%</text>
+
+  <!-- legend note -->
+  <text x="345" y="373" font-size="8" fill="#484f58">★  two-pass pipeline: sentence rank + word prune</text>
+  <text x="345" y="387" font-size="8" fill="#484f58">★★ query-aware: irrelevant sentences removed first</text>
+
+  <!-- axis label -->
+  <text x="435" y="415" text-anchor="middle" font-size="8" fill="#484f58">token reduction %  →  higher = more savings</text>
+
+  <!-- scale markers -->
+  <line x1="345" y1="406" x2="345" y2="410" stroke="#484f58" stroke-width="1"/>
+  <text x="345" y="418" text-anchor="middle" font-size="7" fill="#484f58">0%</text>
+  <line x1="400" y1="406" x2="400" y2="410" stroke="#484f58" stroke-width="1"/>
+  <text x="400" y="418" text-anchor="middle" font-size="7" fill="#484f58">20%</text>
+  <line x1="455" y1="406" x2="455" y2="410" stroke="#484f58" stroke-width="1"/>
+  <text x="455" y="418" text-anchor="middle" font-size="7" fill="#484f58">40%</text>
+  <line x1="510" y1="406" x2="510" y2="410" stroke="#484f58" stroke-width="1"/>
+  <text x="510" y="418" text-anchor="middle" font-size="7" fill="#484f58">60%</text>
+  <line x1="565" y1="406" x2="565" y2="410" stroke="#484f58" stroke-width="1"/>
+  <text x="565" y="418" text-anchor="middle" font-size="7" fill="#484f58">80%</text>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- SECTION 3: COST SAVINGS + INTEGRATIONS (right, x=645-940) -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+
+  <text x="792" y="90" text-anchor="middle" font-size="11" fill="#58a6ff" font-weight="600" letter-spacing="1.5">MONTHLY SAVINGS  (3M tokens/day)</text>
+
+  <rect x="645" y="98" width="295" height="330" fill="#161b22" rx="8" stroke="#30363d" stroke-width="1"/>
+
+  <!-- Model savings rows -->
+  <!-- Claude Opus 4.7 -->
+  <rect x="660" y="113" width="265" height="38" fill="#0d1117" rx="5"/>
+  <text x="675" y="128" font-size="10" fill="#c9d1d9" font-weight="600">Claude Opus 4.7</text>
+  <text x="675" y="142" font-size="8.5" fill="#484f58">$15 / 1M tokens</text>
+  <rect x="840" y="117" width="72" height="26" rx="4" fill="#1c2128" stroke="#238636" stroke-width="1"/>
+  <text x="876" y="128" text-anchor="middle" font-size="9" fill="#3fb950" font-weight="700">~$600</text>
+  <text x="876" y="139" text-anchor="middle" font-size="7.5" fill="#3fb950">/ month</text>
+
+  <!-- Claude Sonnet 4.6 -->
+  <rect x="660" y="157" width="265" height="38" fill="#0d1117" rx="5"/>
+  <text x="675" y="172" font-size="10" fill="#c9d1d9" font-weight="600">Claude Sonnet 4.6</text>
+  <text x="675" y="186" font-size="8.5" fill="#484f58">$3 / 1M tokens</text>
+  <rect x="840" y="161" width="72" height="26" rx="4" fill="#1c2128" stroke="#3fb950" stroke-width="1"/>
+  <text x="876" y="172" text-anchor="middle" font-size="9" fill="#3fb950" font-weight="700">~$120</text>
+  <text x="876" y="183" text-anchor="middle" font-size="7.5" fill="#3fb950">/ month</text>
+
+  <!-- GPT-4.1 -->
+  <rect x="660" y="201" width="265" height="38" fill="#0d1117" rx="5"/>
+  <text x="675" y="216" font-size="10" fill="#c9d1d9" font-weight="600">GPT-4.1</text>
+  <text x="675" y="230" font-size="8.5" fill="#484f58">$2 / 1M tokens</text>
+  <rect x="840" y="205" width="72" height="26" rx="4" fill="#1c2128" stroke="#e3b341" stroke-width="1"/>
+  <text x="876" y="216" text-anchor="middle" font-size="9" fill="#e3b341" font-weight="700">~$80</text>
+  <text x="876" y="227" text-anchor="middle" font-size="7.5" fill="#e3b341">/ month</text>
+
+  <!-- GPT-4.1-mini -->
+  <rect x="660" y="245" width="265" height="38" fill="#0d1117" rx="5"/>
+  <text x="675" y="260" font-size="10" fill="#c9d1d9" font-weight="600">GPT-4.1 mini</text>
+  <text x="675" y="274" font-size="8.5" fill="#484f58">$0.40 / 1M tokens</text>
+  <rect x="840" y="249" width="72" height="26" rx="4" fill="#1c2128" stroke="#484f58" stroke-width="1"/>
+  <text x="876" y="260" text-anchor="middle" font-size="9" fill="#8b949e" font-weight="700">~$16</text>
+  <text x="876" y="271" text-anchor="middle" font-size="7.5" fill="#8b949e">/ month</text>
+
+  <!-- Divider -->
+  <line x1="660" y1="294" x2="910" y2="294" stroke="#21262d" stroke-width="1"/>
+
+  <!-- Integration methods -->
+  <text x="660" y="312" font-size="9" fill="#8b949e" font-weight="600">INTEGRATE VIA</text>
+
+  <!-- CLI pill -->
+  <rect x="660" y="320" width="60" height="22" rx="11" fill="#1c2128" stroke="#30363d" stroke-width="1"/>
+  <text x="690" y="334" text-anchor="middle" font-size="9" fill="#58a6ff">CLI</text>
+
+  <!-- Python SDK pill -->
+  <rect x="730" y="320" width="80" height="22" rx="11" fill="#1c2128" stroke="#30363d" stroke-width="1"/>
+  <text x="770" y="334" text-anchor="middle" font-size="9" fill="#58a6ff">Python SDK</text>
+
+  <!-- MCP pill (highlighted) -->
+  <rect x="820" y="320" width="82" height="22" rx="11" fill="#1f6feb" stroke="#388bfd" stroke-width="1"/>
+  <text x="861" y="334" text-anchor="middle" font-size="9" fill="#ffffff" font-weight="600">MCP Server</text>
+
+  <!-- MCP detail -->
+  <text x="660" y="362" font-size="8.5" fill="#484f58">claude mcp add pcb -s project -- python -m pcb.mcp_server</text>
+  <text x="660" y="376" font-size="8.5" fill="#484f58">→ compress_text  estimate_savings  recommend  list_compressors</text>
+
+  <!-- ═══════════════════════════════════════════════════════════ -->
+  <!-- BOTTOM STRIP -->
+  <!-- ═══════════════════════════════════════════════════════════ -->
+
+  <rect x="0" y="444" width="960" height="76" fill="#161b22" rx="0"/>
+  <rect x="0" y="444" width="960" height="1" fill="#21262d"/>
+  <rect x="0" y="508" width="960" height="12" fill="#161b22" rx="12"/>
+
+  <!-- Bottom: 3 feature pills -->
+  <rect x="30" y="458" width="270" height="50" fill="#0d1117" rx="6" stroke="#30363d" stroke-width="1"/>
+  <text x="165" y="477" text-anchor="middle" font-size="10" fill="#58a6ff" font-weight="600">📊  Benchmark</text>
+  <text x="165" y="492" text-anchor="middle" font-size="8.5" fill="#8b949e">5 algorithms × 3 task types · proxy + LLM judge</text>
+
+  <rect x="345" y="458" width="270" height="50" fill="#0d1117" rx="6" stroke="#30363d" stroke-width="1"/>
+  <text x="480" y="477" text-anchor="middle" font-size="10" fill="#3fb950" font-weight="600">🚀  Deploy</text>
+  <text x="480" y="492" text-anchor="middle" font-size="8.5" fill="#8b949e">CompressingAnthropic / CompressingOpenAI drop-in</text>
+
+  <rect x="660" y="458" width="270" height="50" fill="#0d1117" rx="6" stroke="#388bfd" stroke-width="1"/>
+  <text x="795" y="477" text-anchor="middle" font-size="10" fill="#bc8cff" font-weight="600">🔌  MCP Server</text>
+  <text x="795" y="492" text-anchor="middle" font-size="8.5" fill="#8b949e">4 tools inside Claude Code · query-aware compression</text>
+
+</svg>

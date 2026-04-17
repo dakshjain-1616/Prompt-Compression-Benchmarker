@@ -1,0 +1,26 @@
+# Core dependencies (automatically installed via pip install .)
+typer>=0.9.0
+rich>=13.0.0
+tiktoken>=0.5.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+rouge-score>=0.1.2
+rank-bm25>=0.2.2
+pydantic>=2.0.0
+
+# Optional: SDK wrappers
+# anthropic>=0.30.0
+# openai>=1.30.0
+
+# Optional: MCP server for Claude Code
+# mcp>=1.0.0
+
+# Optional: GPU-backed compressors (LLMLingua, SelectiveContext)
+# llmlingua>=0.2.0
+# selective-context>=0.1.0
+# transformers>=4.30.0
+# torch>=2.0.0
+
+# Development
+pytest>=7.4.0
+pytest-cov>=4.1.0
