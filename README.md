@@ -48,8 +48,8 @@ Then it gives you a one-line wrapper to deploy the answer.
 **From source:**
 
 ```bash
-git clone https://github.com/your-org/prompt-compression-benchmarker
-cd prompt-compression-benchmarker
+git clone https://github.com/dakshjain-1616/Prompt-Compression-Benchmarker
+cd Prompt-Compression-Benchmarker
 pip install .
 ```
 
@@ -485,7 +485,7 @@ Options:
 
 ```bash
 pcb list-compressors          # Show all algorithms
-pcb list-models               # Show 65+ supported LLM judge models
+pcb list-models               # Show 75+ supported LLM judge models
 pcb show-schema rag           # Show JSONL schema for a task type
 ```
 
@@ -543,7 +543,7 @@ src/pcb/
 │   ├── summarization.py        # ROUGE-L evaluator
 │   └── coding.py               # BM25 + identifier preservation
 ├── evaluators/
-│   └── llm_judge.py            # OpenRouter LLM-as-judge (65+ models)
+│   └── llm_judge.py            # OpenRouter LLM-as-judge (75+ models)
 ├── reporters/
 │   ├── terminal.py             # Rich terminal tables
 │   ├── json_reporter.py        # JSON output
