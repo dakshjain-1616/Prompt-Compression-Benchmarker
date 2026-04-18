@@ -1,5 +1,6 @@
 """LLMLingua compressor for prompt compression."""
 
+import warnings
 from typing import Any, Optional
 
 from pcb.compressors.base import BaseCompressor, CompressionResult
@@ -23,7 +24,8 @@ class LLMLinguaCompressor(BaseCompressor):
         self.model_name = self.config.get("model_name", "lgaalves/gpt2-dolly-v2")
         self.rate = self.config.get("rate", 0.5)
         self._compressor = None
-    
+        self._fallback_active = False
+
     def initialize(self) -> None:
         """Initialize the LLMLingua compressor."""
         try:
@@ -33,10 +35,17 @@ class LLMLinguaCompressor(BaseCompressor):
                 device_map="cpu"
             )
             self._is_initialized = True
-        except Exception:
-            # Mark as initialized even if library fails - will use fallback
+        except ImportError:
+            # Expected when the optional [llmlingua] extras aren't installed.
+            self._fallback_active = True
             self._is_initialized = True
-    
+        except Exception as e:
+            # Something else went wrong (CUDA OOM, disk full, broken checkpoint).
+            # Surface it — silent fallback hides real bugs as "heuristic mode".
+            warnings.warn(f"LLMLingua init failed, falling back to heuristic: {e!r}")
+            self._fallback_active = True
+            self._is_initialized = True
+
     def _simple_compress(self, text: str, rate: float) -> str:
         """Fallback: coarse sentence-level pruning (keep first+last+evenly-spaced middle).
 
@@ -82,32 +91,33 @@ class LLMLinguaCompressor(BaseCompressor):
             CompressionResult with compressed text.
         """
         self._ensure_initialized()
-        
+        self._validate_kwargs(kwargs)
+
         rate = kwargs.get("rate", self.rate)
         
         original_tokens = self.token_counter.count_tokens(text)
-        
+
+        used_fallback = self._fallback_active
         try:
             if self._compressor is not None:
-                # Use LLMLingua library
                 result = self._compressor.compress_prompt(
                     context=text,
                     rate=rate
                 )
                 compressed_text = result.get("compressed_prompt", text)
             else:
-                # Use fallback implementation
                 compressed_text = self._simple_compress(text, rate)
+                used_fallback = True
         except Exception:
-            # Fallback on any error
             compressed_text = self._simple_compress(text, rate)
-        
+            used_fallback = True
+
         compressed_tokens = self.token_counter.count_tokens(compressed_text)
-        
+
         compression_ratio = 0.0
         if original_tokens > 0:
             compression_ratio = 1.0 - (compressed_tokens / original_tokens)
-        
+
         return CompressionResult(
             original_text=text,
             compressed_text=compressed_text,
@@ -118,7 +128,8 @@ class LLMLinguaCompressor(BaseCompressor):
                 "method": "llmlingua",
                 "model_name": self.model_name,
                 "target_rate": rate,
-                "actual_rate": compression_ratio
+                "actual_rate": compression_ratio,
+                "fallback_active": used_fallback,
             }
         )
 
@@ -138,40 +149,33 @@ class LLMLingua2Compressor(BaseCompressor):
         self.token_counter = TokenCounter()
         self.rate = self.config.get("rate", 0.5)
         self._compressor = None
-    
+        self._fallback_active = False
+
     def initialize(self) -> None:
         """Initialize the LLMLingua2 compressor."""
         try:
             from llmlingua import PromptCompressor
-            # LLMLingua2 uses the same interface but with different parameters
             self._compressor = PromptCompressor(
                 model_name="microsoft/llmlingua-2-xlm-roberta-large",
                 device_map="cpu"
             )
             self._is_initialized = True
-        except Exception:
-            # Mark as initialized even if library fails - will use fallback
+        except ImportError:
+            self._fallback_active = True
+            self._is_initialized = True
+        except Exception as e:
+            warnings.warn(f"LLMLingua2 init failed, falling back to heuristic: {e!r}")
+            self._fallback_active = True
             self._is_initialized = True
     
     def _simple_compress(self, text: str, rate: float) -> str:
-        """Simple fallback compression."""
         """Fallback: word-level token pruning (removes stopwords and low-content tokens).
 
         Mimics LLMLingua-2's fine-grained token-level classification approach.
         """
         import re
 
-        _STOPWORDS = {
-            "a", "an", "the", "is", "are", "was", "were", "be", "been", "being",
-            "have", "has", "had", "do", "does", "did", "will", "would", "could",
-            "should", "may", "might", "must", "shall", "can", "need", "dare",
-            "to", "of", "in", "for", "on", "with", "at", "by", "from", "up",
-            "about", "into", "through", "during", "including", "also", "just",
-            "or", "and", "but", "if", "then", "because", "while", "although",
-            "it", "its", "this", "that", "these", "those", "i", "you", "he",
-            "she", "we", "they", "them", "their", "there", "here", "which",
-            "who", "whom", "what", "when", "where", "how", "very", "so", "such",
-        }
+        from pcb.utils.stopwords import STOPWORDS as _STOPWORDS
 
         words = text.split()
         if not words:
@@ -212,14 +216,15 @@ class LLMLingua2Compressor(BaseCompressor):
             CompressionResult with compressed text.
         """
         self._ensure_initialized()
-        
+        self._validate_kwargs(kwargs)
+
         rate = kwargs.get("rate", self.rate)
         
         original_tokens = self.token_counter.count_tokens(text)
-        
+
+        used_fallback = self._fallback_active
         try:
             if self._compressor is not None:
-                # Use LLMLingua2 library
                 result = self._compressor.compress_prompt(
                     context=text,
                     rate=rate,
@@ -227,18 +232,18 @@ class LLMLingua2Compressor(BaseCompressor):
                 )
                 compressed_text = result.get("compressed_prompt", text)
             else:
-                # Use fallback implementation
                 compressed_text = self._simple_compress(text, rate)
+                used_fallback = True
         except Exception:
-            # Fallback on any error
             compressed_text = self._simple_compress(text, rate)
-        
+            used_fallback = True
+
         compressed_tokens = self.token_counter.count_tokens(compressed_text)
-        
+
         compression_ratio = 0.0
         if original_tokens > 0:
             compression_ratio = 1.0 - (compressed_tokens / original_tokens)
-        
+
         return CompressionResult(
             original_text=text,
             compressed_text=compressed_text,
@@ -248,6 +253,7 @@ class LLMLingua2Compressor(BaseCompressor):
             metadata={
                 "method": "llmlingua2",
                 "target_rate": rate,
-                "actual_rate": compression_ratio
+                "actual_rate": compression_ratio,
+                "fallback_active": used_fallback,
             }
         )

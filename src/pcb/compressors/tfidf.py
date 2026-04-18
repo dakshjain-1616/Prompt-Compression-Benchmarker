@@ -60,6 +60,7 @@ class TFIDFCompressor(BaseCompressor):
             CompressionResult with compressed text.
         """
         self._ensure_initialized()
+        self._validate_kwargs(kwargs)
 
         # Split into sentences first so we can compute ratio-based top_k
         sentences = self._split_into_sentences(text)
@@ -84,7 +85,7 @@ class TFIDFCompressor(BaseCompressor):
             )
 
         if top_k >= len(sentences):
-            top_k = max(1, len(sentences) - 1)
+            top_k = len(sentences)
         
         # Calculate TF-IDF scores
         try:

@@ -23,7 +23,10 @@ def test_token_counter():
     assert n > 50
 
 
-@pytest.mark.parametrize("name", ["no_compression", "tfidf"])
+@pytest.mark.parametrize(
+    "name",
+    ["no_compression", "tfidf", "smart", "llmlingua", "llmlingua2", "selective_context"],
+)
 def test_compressor_reduces_tokens(name):
     c = ALL_COMPRESSORS[name]()
     c.initialize()
@@ -32,6 +35,37 @@ def test_compressor_reduces_tokens(name):
     assert len(result.compressed_text) > 0
     if name != "no_compression":
         assert count_tokens(result.compressed_text) < count_tokens(SAMPLE_TEXT)
+
+
+def test_smart_compressor_query_aware():
+    c = ALL_COMPRESSORS["smart"]()
+    c.initialize()
+    result = c.compress(SAMPLE_TEXT, rate=0.5, query="What is multi-head attention?")
+    assert result.metadata.get("query_aware") is True
+    assert count_tokens(result.compressed_text) < count_tokens(SAMPLE_TEXT)
+
+
+@pytest.mark.parametrize("name", ["llmlingua", "llmlingua2", "selective_context"])
+def test_fallback_active_is_surfaced(name):
+    """Heuristic fallback should be flagged in metadata when the optional lib is missing."""
+    c = ALL_COMPRESSORS[name]()
+    c.initialize()
+    result = c.compress(SAMPLE_TEXT, rate=0.4)
+    assert "fallback_active" in result.metadata
+
+
+def test_empty_text_does_not_crash():
+    c = ALL_COMPRESSORS["smart"]()
+    c.initialize()
+    result = c.compress("", rate=0.5)
+    assert result.compressed_tokens == 0
+
+
+def test_whitespace_only_text():
+    c = ALL_COMPRESSORS["smart"]()
+    c.initialize()
+    result = c.compress("   \n  \t  ", rate=0.5)
+    assert result.compressed_tokens <= result.original_tokens
 
 
 def test_compression_stats():

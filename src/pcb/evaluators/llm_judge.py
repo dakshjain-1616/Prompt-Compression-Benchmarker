@@ -6,11 +6,16 @@ Usage:
     pcb run --llm-judge --judge-model google/gemini-2.5-pro
 """
 
+import hashlib
 import json
 import os
 import re
 import time
 from typing import Any, Dict, Optional
+
+
+def _key_hash(s: str) -> str:
+    return hashlib.sha256(s.encode("utf-8")).hexdigest()[:16]
 
 import httpx
 
@@ -253,7 +258,7 @@ class LLMJudge:
         answer: str,
         sample_id: str = "",
     ) -> Optional[float]:
-        key = f"rag:{sample_id}:{hash(compressed_context)}"
+        key = f"rag:{sample_id}:{_key_hash(compressed_context)}"
         if key in self._cache:
             return self._cache[key]
         prompt = _RAG_PROMPT.format(
@@ -272,7 +277,7 @@ class LLMJudge:
         reference_summary: str,
         sample_id: str = "",
     ) -> Optional[float]:
-        key = f"sum:{sample_id}:{hash(generated_summary)}"
+        key = f"sum:{sample_id}:{_key_hash(generated_summary)}"
         if key in self._cache:
             return self._cache[key]
         prompt = _SUMMARIZATION_PROMPT.format(
@@ -291,7 +296,7 @@ class LLMJudge:
         solution: str,
         sample_id: str = "",
     ) -> Optional[float]:
-        key = f"code:{sample_id}:{hash(compressed_context)}"
+        key = f"code:{sample_id}:{_key_hash(compressed_context)}"
         if key in self._cache:
             return self._cache[key]
         prompt = _CODING_PROMPT.format(

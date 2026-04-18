@@ -4,25 +4,43 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "prompt-compression-benchmarker"
-version = "0.1.0"
-description = "A CLI tool for benchmarking prompt compression techniques across multiple tasks"
+version = "0.2.3"
+description = "Benchmark and deploy prompt compression for LLMs. CLI + drop-in Anthropic/OpenAI wrappers + MCP server. Cut input-token cost 35–60% with measurable quality."
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.9"
 authors = [
     {name = "Prompt Compression Benchmarker"}
 ]
-keywords = ["prompt-compression", "llm", "benchmarking", "nlp"]
+keywords = [
+    "prompt-compression",
+    "llm",
+    "benchmarking",
+    "nlp",
+    "mcp",
+    "anthropic",
+    "openai",
+    "claude",
+    "token-reduction",
+    "llmlingua",
+    "cost-optimization",
+]
 classifiers = [
     "Development Status :: 4 - Beta",
+    "Environment :: Console",
     "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing :: Linguistic",
+    "Typing :: Typed",
 ]
 dependencies = [
     "typer>=0.9.0",
@@ -33,6 +51,8 @@ dependencies = [
     "rouge-score>=0.1.2",
     "rank-bm25>=0.2.2",
     "pydantic>=2.0.0",
+    "httpx>=0.24.0",
+    "mcp>=1.0.0",
 ]
 
 [project.optional-dependencies]
@@ -56,8 +76,11 @@ pcb     = "pcb.cli:app"
 pcb-mcp = "pcb.mcp_server:main"
 
 [project.urls]
-Homepage = "https://github.com/prompt-compression-benchmarker/prompt-compression-benchmarker"
-Repository = "https://github.com/prompt-compression-benchmarker/prompt-compression-benchmarker"
+Homepage      = "https://github.com/prompt-compression-benchmarker/prompt-compression-benchmarker"
+Repository    = "https://github.com/prompt-compression-benchmarker/prompt-compression-benchmarker"
+Issues        = "https://github.com/prompt-compression-benchmarker/prompt-compression-benchmarker/issues"
+Changelog     = "https://github.com/prompt-compression-benchmarker/prompt-compression-benchmarker/releases"
+Documentation = "https://github.com/prompt-compression-benchmarker/prompt-compression-benchmarker#readme"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -66,7 +89,7 @@ where = ["src"]
 "" = "src"
 
 [tool.setuptools.package-data]
-"pcb" = ["data/*.jsonl"]
+"pcb" = ["data/*.jsonl", "data/*.json"]
 
 [tool.black]
 line-length = 100

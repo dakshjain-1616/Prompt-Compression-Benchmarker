@@ -45,7 +45,7 @@ _MODEL_PRICES = {
     "deepseek-v3.2":      0.27,
 }
 
-_DEFAULT_COMPRESSORS = ["no_compression", "tfidf", "selective_context", "llmlingua", "llmlingua2"]
+_DEFAULT_COMPRESSORS = ["no_compression", "smart", "tfidf", "selective_context", "llmlingua", "llmlingua2"]
 _DEFAULT_TASKS = ["rag", "summarization", "coding"]
 _BUNDLED_DATA_DIR = Path(__file__).parent / "data"          # installed package: src/pcb/data/
 _DEV_DATA_DIR = Path(__file__).parent.parent.parent / "data"  # dev checkout: repo root/data/
@@ -345,6 +345,7 @@ def list_compressors() -> None:
     table.add_column("Strategy")
     descriptions = {
         "no_compression":   "Pass-through baseline (0% compression, quality ceiling)",
+        "smart":            "Two-pass pipeline: dedup + sentence selection + word prune (query-aware)",
         "tfidf":            "TF-IDF sentence scoring — keeps highest-scoring sentences",
         "selective_context":"Greedy token-budget sentence selection (first-fit)",
         "llmlingua":        "Sentence-level coarse pruning (first+middle+last strategy)",

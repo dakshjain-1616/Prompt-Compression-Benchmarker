@@ -23,7 +23,8 @@ class SelectiveContextCompressor(BaseCompressor):
         self.token_budget = self.config.get("token_budget", 1000)
         self.context_level = self.config.get("context_level", "sentence")
         self._compressor = None
-    
+        self._fallback_active = False
+
     def initialize(self) -> None:
         """Initialize the Selective Context compressor."""
         try:
@@ -34,7 +35,7 @@ class SelectiveContextCompressor(BaseCompressor):
             )
             self._is_initialized = True
         except ImportError:
-            # Fallback to simple implementation if selective-context not available
+            self._fallback_active = True
             self._is_initialized = True
     
     def _simple_compress(self, text: str, token_budget: int) -> str:
@@ -73,7 +74,8 @@ class SelectiveContextCompressor(BaseCompressor):
             CompressionResult with compressed text.
         """
         self._ensure_initialized()
-        
+        self._validate_kwargs(kwargs)
+
         rate = kwargs.get("rate", None)
         original_tokens = self.token_counter.count_tokens(text)
         if rate is not None:
@@ -81,26 +83,26 @@ class SelectiveContextCompressor(BaseCompressor):
         else:
             token_budget = kwargs.get("token_budget", min(self.token_budget, max(10, int(original_tokens * 0.5))))
         
+        used_fallback = self._fallback_active
         try:
             if self._compressor is not None:
-                # Use selective-context library
                 compressed_text = self._compressor(
                     context=text,
                     reduce_ratio=1.0 - (token_budget / max(original_tokens, 1))
                 )
             else:
-                # Use fallback implementation
                 compressed_text = self._simple_compress(text, token_budget)
+                used_fallback = True
         except Exception:
-            # Fallback on any error
             compressed_text = self._simple_compress(text, token_budget)
-        
+            used_fallback = True
+
         compressed_tokens = self.token_counter.count_tokens(compressed_text)
-        
+
         compression_ratio = 0.0
         if original_tokens > 0:
             compression_ratio = 1.0 - (compressed_tokens / original_tokens)
-        
+
         return CompressionResult(
             original_text=text,
             compressed_text=compressed_text,
@@ -110,6 +112,7 @@ class SelectiveContextCompressor(BaseCompressor):
             metadata={
                 "method": "selective_context",
                 "token_budget": token_budget,
-                "context_level": self.context_level
+                "context_level": self.context_level,
+                "fallback_active": used_fallback,
             }
         )

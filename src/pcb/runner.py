@@ -107,8 +107,11 @@ def run_benchmark(
                     proxy_baselines[sid] = r.quality_score
                     if r.llm_score is not None:
                         llm_baselines[sid] = r.llm_score
-                except Exception:
-                    proxy_baselines[sid] = 0.0
+                except Exception as e:
+                    # Leave baseline unset so downstream quality_drop is skipped rather than
+                    # computed against a bogus 0.0. Surfacing the error matters — a silent
+                    # baseline failure makes every compressor's drop % misleading.
+                    print(f"  [warn] baseline eval failed for sample {sid}: {e}")
 
         # Second pass: all compressors
         for compressor in compressors:

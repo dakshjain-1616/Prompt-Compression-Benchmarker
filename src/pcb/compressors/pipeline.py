@@ -13,20 +13,8 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 from pcb.compressors.base import BaseCompressor, CompressionResult
+from pcb.utils.stopwords import STOPWORDS as _STOPWORDS
 from pcb.utils.token_counter import TokenCounter
-
-
-_STOPWORDS = {
-    "a", "an", "the", "is", "are", "was", "were", "be", "been", "being",
-    "have", "has", "had", "do", "does", "did", "will", "would", "could",
-    "should", "may", "might", "must", "shall", "can", "need", "dare",
-    "to", "of", "in", "for", "on", "with", "at", "by", "from", "up",
-    "about", "into", "through", "during", "including", "also", "just",
-    "or", "and", "but", "if", "then", "because", "while", "although",
-    "it", "its", "this", "that", "these", "those", "i", "you", "he",
-    "she", "we", "they", "them", "their", "there", "here", "which",
-    "who", "whom", "what", "when", "where", "how", "very", "so", "such",
-}
 
 _FILLER_PHRASES = re.compile(
     r"\b(it is worth noting that|as we can see|in order to|the fact that|"
@@ -44,7 +32,11 @@ def _split_sentences(text: str) -> list[str]:
 
 
 def _score_by_query(sentences: list[str], query: str) -> np.ndarray:
-    """Score each sentence by cosine similarity to the query."""
+    """Score each sentence by cosine similarity to the query.
+
+    Query-aware scoring must refit because the query can introduce vocabulary
+    that isn't present in the sentence corpus alone.
+    """
     vectorizer = TfidfVectorizer(stop_words="english", min_df=1)
     try:
         matrix = vectorizer.fit_transform([query] + sentences)
@@ -54,33 +46,45 @@ def _score_by_query(sentences: list[str], query: str) -> np.ndarray:
     return scores
 
 
-def _score_by_tfidf(sentences: list[str]) -> np.ndarray:
-    """Score each sentence by its aggregate TF-IDF weight in the corpus."""
+def _score_from_matrix(matrix) -> np.ndarray:
+    """Score each sentence by its aggregate TF-IDF weight using a pre-fit matrix."""
+    try:
+        return np.array(matrix.sum(axis=1)).flatten()
+    except Exception:
+        return np.ones(matrix.shape[0])
+
+
+def _dedup_sentences_with_matrix(sentences: list[str], threshold: float = 0.90):
+    """Remove near-duplicate sentences. Returns (kept_sentences, kept_matrix).
+
+    The returned matrix is the TF-IDF encoding of the surviving sentences so
+    downstream scoring can reuse the fit instead of refitting a second vectorizer.
+    """
+    if len(sentences) <= 2:
+        vectorizer = TfidfVectorizer(stop_words="english", min_df=1, max_df=0.95)
+        try:
+            matrix = vectorizer.fit_transform(sentences)
+            return sentences, matrix
+        except Exception:
+            return sentences, None
+
     vectorizer = TfidfVectorizer(stop_words="english", min_df=1, max_df=0.95)
     try:
         matrix = vectorizer.fit_transform(sentences)
-        scores = np.array(matrix.sum(axis=1)).flatten()
     except Exception:
-        scores = np.ones(len(sentences))
-    return scores
-
-
-def _dedup_sentences(sentences: list[str], threshold: float = 0.90) -> list[str]:
-    """Remove sentences that are near-duplicates of an earlier sentence."""
-    if len(sentences) <= 2:
-        return sentences
-    vectorizer = TfidfVectorizer(stop_words="english", min_df=1)
-    try:
-        matrix = vectorizer.fit_transform(sentences)
-    except Exception:
-        return sentences
+        return sentences, None
 
     kept = [0]
     for i in range(1, len(sentences)):
         sims = cosine_similarity(matrix[i : i + 1], matrix[np.array(kept)]).flatten()
         if sims.max() < threshold:
             kept.append(i)
-    return [sentences[i] for i in kept]
+
+    if len(kept) == len(sentences):
+        return sentences, matrix
+
+    kept_arr = np.array(kept)
+    return [sentences[i] for i in kept], matrix[kept_arr]
 
 
 def _prune_words(text: str, word_rate: float) -> str:
@@ -118,6 +122,8 @@ class PipelineCompressor(BaseCompressor):
     of by corpus-wide TF-IDF, which makes it safe to be much more aggressive.
     """
 
+    supports_query = True
+
     def __init__(self, config: Optional[dict] = None):
         super().__init__(name="smart", config=config)
         self.token_counter = TokenCounter()
@@ -133,6 +139,7 @@ class PipelineCompressor(BaseCompressor):
             query (str):   optional query for relevance-based sentence scoring.
         """
         self._ensure_initialized()
+        self._validate_kwargs(kwargs)
 
         rate: float = kwargs.get("rate", 0.5)
         query: Optional[str] = kwargs.get("query", None)
@@ -155,20 +162,26 @@ class PipelineCompressor(BaseCompressor):
             )
 
         # --- pass 1: deduplicate then sentence selection ---
-        sentences = _dedup_sentences(sentences)
+        # Dedup fits TF-IDF once; the resulting matrix is reused for corpus
+        # scoring to avoid a second fit on the same data.
+        sentences, kept_matrix = _dedup_sentences_with_matrix(sentences)
 
         # Word pass will remove word_rate of remaining tokens.
         # Sentence pass must therefore keep sentence_keep fraction so that:
         #   sentence_keep * (1 - word_rate) = (1 - rate)
         word_rate = min(0.35, rate * 0.40)
         sentence_keep = (1.0 - rate) / max(0.01, 1.0 - word_rate)
-        sentence_keep = max(0.20, min(0.85, sentence_keep))
+        # Upper bound 1.0 — earlier 0.85 cap caused low-rate requests
+        # (e.g. rate=0.1) to over-prune sentences regardless of target.
+        sentence_keep = max(0.20, min(1.0, sentence_keep))
         n_keep = max(1, int(len(sentences) * sentence_keep))
 
         if query:
             scores = _score_by_query(sentences, query)
+        elif kept_matrix is not None:
+            scores = _score_from_matrix(kept_matrix)
         else:
-            scores = _score_by_tfidf(sentences)
+            scores = np.ones(len(sentences))
 
         top_idx = sorted(np.argsort(scores)[-n_keep:])
         selected_text = " ".join(sentences[i] for i in top_idx)
